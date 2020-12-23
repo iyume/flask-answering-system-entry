@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 Flask.jinja_options['line_comment_prefix'] = '##'
 
+
 with open('pkl/index.json', 'r+') as f:
     PATH_JSON = json.load(f)
 
@@ -160,3 +161,8 @@ def secret_edit():
         df.to_pickle(current_filepath)
         return redirect(url_for('secret_edit', path=filepath))
     return render_template('secret_edit.html', columns_tags=list(df.columns), index_size=df.index.size, df=df)
+
+
+@app.route('/admin')
+def admin():
+    return 'hello!'
