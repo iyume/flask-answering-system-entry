@@ -52,7 +52,7 @@ a:active {
 .scroll-div-left {
     overflow-y: scroll;
     padding-top: 0;
-    max-height: 66%;
+    max-height: 98%;
 }
 
 .scroll-div-right {

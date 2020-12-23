@@ -1,17 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='input.css') }}">
-    <title>SmallLogin</title>
-</head>
-<body>
-    <form method="post">
-        User <input type="text" name="user" autocomplete="off" required>
-        Password <input type="text" name="pwd" autocomplete="off" required>
-        <input class="button" type="submit" name="submit" value="login">
-    </form>
-</body>
-</html>
+{% extends 'secret_base.html' %}
+
+{% block link %}
+{% endblock %}
+
+{% block section1 %}
+
+        <div class="scroll-div-left">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+            <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+            <div style="padding-top: 0;">
+                <h2>Index:</h2>
+                {% for a in paths %}
+                <p>{{ a }}/</p>
+                    {% for b in paths[a] %}
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;{{ b }}/</p>
+                        {% for c in paths[a][b] %}
+                <span>
+                    <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ c }}/ </label>
+                    <form style="display: inline;" method="post">
+                        <input type="text" name="filename" autocomplete="off" required>
+                        <input type="hidden" name="a" value="{{ a }}" autocomplete="off">
+                        <input type="hidden" name="b" value="{{ b }}" autocomplete="off">
+                        <input type="hidden" name="c" value="{{ c }}" autocomplete="off">
+                        <button type="submit" name="submit" value="add">Add</button>
+                    </form>
+                </span>
+                            {% for d in paths[a][b][c] %}
+                                {% set filepath = [a, b, c, d] | join('/') %}
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('secret_edit', path=filepath) }}">{{ d }}</a></p>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+{% endblock %}
+
+{% block section2 %}
+        <p>操作说明：</p>
+        <p>一：添加文件索引（初始只有目录，需要手动添加文件名）</p>
+        <p>二：选择相应文件，进行添加、删除数据</p>
+        <p>PS：</p>
+        <p>（1）因为删除操作较危险，暂时不在文件操作中加入</p>
+        <p>（2）文件名不允许有特殊字符（& > " / \ 之类的）</p>
+        <p>（3）录入题目无需录入题号、ABCD 之类的</p>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
