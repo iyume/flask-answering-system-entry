@@ -1,0 +1,32 @@
+{% extends 'edit.html' %}
+
+{% block status %}
+<button class="button" style="background-color: #b49a44;">当前状态：插入条目</button>
+{% endblock %}
+
+{% block section2 %}
+{{ super() }}
+<div class="scroll-div-right">
+    <div style="width: 80%; margin: 0 auto; padding-top: 0;">
+        <form method="post">
+            <label>编号（必须）- 插入操作会自动把元素后移</label>
+            <input type="text" name="code" autocomplete="off">
+            <label>问题</label>
+            <input type="text" name="question" autocomplete="off">
+            <label>A:</label>
+            <input type="text" name="a" autocomplete="off">
+            <label>B:</label>
+            <input type="text" name="b" autocomplete="off">
+            <label>C:</label>
+            <input type="text" name="c" autocomplete="off">
+            <label>D:</label>
+            <input type="text" name="d" autocomplete="off">
+            <label>解析:</label>
+            <input type="text" name="answer" autocomplete="off">
+            <label>Tags:</label>
+            <input type="text" name="tags" autocomplete="off">
+            <input type="submit" value="Update">
+        </form>
+    </div>
+</div>
+{% endblock %}

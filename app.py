@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 Flask.jinja_options['line_comment_prefix'] = '##'
 
 
-with open('pkl/index.json', 'r+') as f:
+with open('pkl/index.json', 'r') as f:
     PATH_JSON = json.load(f)
 
 AUTHS = pd.DataFrame([['0', 'admin', generate_password_hash('workteam')],
@@ -60,9 +60,15 @@ def index():
             path_b = request.form['b']
             path_c = request.form['c']
             file_name = request.form['filename']
+
+            if file_name == '':
+                flash('文件名不能为空')
+                return redirect(url_for('index'))
+
             file_path = os.path.join('pkl', path_a, path_b, path_c, file_name)
 
             if request.form['submit'] == 'add':
+
                 if os.path.exists(file_path):
                     flash('文件已存在')
                     return redirect(url_for('index'))
@@ -75,17 +81,17 @@ def index():
                     pd.DataFrame(np.arange(7).reshape(1, 7), columns=['问题', 'A', 'B', 'C', 'D', '答案', 'Tags']).to_pickle(file_path)
                     return redirect(url_for('index'))
 
-            # if request.form['submit'] == 'del':
-            #     if os.path.exists(file_path):
-            #         os.system("rm " + file_path)
-            #         del PATH_JSON[path_a][path_b][path_c][file_name]
-            #         return redirect(url_for('index'))
-            #     else:
-            #         flash('你所输入的文件名不存在')
-            #         return redirect(url_for('index'))
+            if request.form['submit'] == 'del': # 因为较危险，暂不提供此功能
 
-            #     with open('pkl/index.json', 'w') as f:
-            #         json.dump(PATH_JSON, f, ensure_ascii=False)
+                if os.path.exists(file_path):
+                    os.system("rm " + file_path)
+                    del PATH_JSON[path_a][path_b][path_c][file_name]
+                    with open('pkl/index.json', 'w') as f:
+                        json.dump(PATH_JSON, f, ensure_ascii=False)
+                    return redirect(url_for('index'))
+                else:
+                    flash('你所输入的文件名不存在')
+                    return redirect(url_for('index'))
 
             return redirect(url_for('index'))
 
@@ -116,36 +122,18 @@ def login():
     return render_template('login.html', form=form)
 
 
-@app.route('/32rBUiQhYmslIPweiXRu1P4jIqzYPZN36LnZHbgleMqpt79X60', methods=['GET', 'POST'])
-def secret_index():
-    if request.method == 'POST':
-        path_a = request.form['a']
-        path_b = request.form['b']
-        path_c = request.form['c']
-        file_name = request.form['file']
-        file_path = os.path.join('pkl', path_a, path_b, path_c, file_name)
-        if request.form['submit'] == 'add':
-            os.system("touch " + file_path)
-            PATH_JSON[path_a][path_b][path_c][file_name] = file_path
-            with open('pkl/index.json', 'w') as f: # pkl initilization
-                json.dump(PATH_JSON, f, ensure_ascii=False)
-            pd.DataFrame(np.arange(7).reshape(1, 7), columns=['问题', 'A', 'B', 'C', 'D', '解析', 'Tags']).to_pickle(file_path)
-        if request.form['submit'] == 'del':
-            os.system("rm " + file_path)
-            del PATH_JSON[path_a][path_b][path_c][file_name]
-            with open('pkl/index.json', 'w') as f:
-                json.dump(PATH_JSON, f, ensure_ascii=False)
-        return redirect(url_for('secret_index'))
-    else:
-        return render_template('secret_index.html', paths=PATH_JSON)
+@app.route('/edit', methods=['GET'])
+@login_required
+def edit():
+    if not request.args.get('path'):
+        return redirect(url_for('index'))
 
-
-@app.route('/32rBUiQhYmslIPweiXRu1P4jIqzYPZN36LnZHbgleMqpt79X60/edit', methods=['GET', 'POST'])
-def secret_edit():
     filepath = request.args.get('path')
     current_filepath = os.path.join('pkl', filepath)
     df = pd.read_pickle(current_filepath)
+
     if request.method == 'POST':
+
         question = request.form['question']
         a = request.form['a']
         b = request.form['b']
@@ -153,16 +141,158 @@ def secret_edit():
         d = request.form['d']
         solution = request.form['solution']
         tags = request.form['tags']
+
         series = [question, a, b, c, d, solution, tags]
+
         if df.loc[0][0] == 0:
             df.loc[0] = series
         else:
             df.loc[df.index.size] = series
         df.to_pickle(current_filepath)
+
         return redirect(url_for('secret_edit', path=filepath))
-    return render_template('secret_edit.html', columns_tags=list(df.columns), index_size=df.index.size, df=df)
+
+    return render_template('edit.html', columns_tags=df.columns.values, index_size=df.index.size, df=df, filepath=filepath)
+
+
+@app.route('/edit/add', methods=['GET', 'POST'])
+@login_required
+def edit_add():
+    if not request.args.get('path'):
+        return redirect(url_for('index'))
+
+    filepath = request.args.get('path')
+    current_filepath = os.path.join('pkl', filepath)
+    df = pd.read_pickle(current_filepath)
+
+    if request.method == 'POST':
+        question = request.form['question']
+        a = request.form['a']
+        b = request.form['b']
+        c = request.form['c']
+        d = request.form['d']
+        answer = request.form['answer']
+        tags = request.form['tags']
+
+        series = [question, a, b, c, d, answer, tags]
+
+        if df.loc[0][0] == 0:
+            df.loc[0] = series
+        else:
+            df.loc[df.index.size] = series
+        df.to_pickle(current_filepath)
+
+        return redirect(url_for('edit_add', path=filepath))
+
+    return render_template('edit_add.html', columns_tags=df.columns.values, index_size=df.index.size, df=df, filepath=filepath)
+
+
+@app.route('/edit/insert', methods=['GET', 'POST'])
+@login_required
+def edit_insert():
+    if not request.args.get('path'):
+        return redirect(url_for('index'))
+
+    filepath = request.args.get('path')
+    current_filepath = os.path.join('pkl', filepath)
+    df = pd.read_pickle(current_filepath)
+
+    if request.method == 'POST':
+        code = int(request.form['code'])
+
+        if code < 0 or code >= df.index.size:
+            flash('序号错误')
+            return redirect(url_for('edit_insert', path=filepath))
+
+        question = request.form['question']
+        a = request.form['a']
+        b = request.form['b']
+        c = request.form['c']
+        d = request.form['d']
+        answer = request.form['answer']
+        tags = request.form['tags']
+
+        series = [question, a, b, c, d, answer, tags]
+        re_index = list(range(df.index.size + 1))
+        _ = re_index.pop(code)
+        df.index = re_index
+        df.loc[code] = series
+        df = df.sort_index()
+        df.to_pickle(current_filepath)
+
+        return redirect(url_for('edit_insert', path=filepath))
+
+    return render_template('edit_insert.html', columns_tags=df.columns.values, index_size=df.index.size, df=df, filepath=filepath)
+
+
+@app.route('/edit/modify', methods=['GET', 'POST'])
+@login_required
+def edit_modify():
+    if not request.args.get('path'):
+        return redirect(url_for('index'))
+
+    filepath = request.args.get('path')
+    current_filepath = os.path.join('pkl', filepath)
+    df = pd.read_pickle(current_filepath)
+
+    if request.method == 'POST':
+        code = int(request.form['code'])
+
+        if code < 0 or code >= df.index.size:
+            flash('序号错误')
+            return redirect(url_for('edit_modify', path=filepath))
+
+        question = request.form['question']
+        a = request.form['a']
+        b = request.form['b']
+        c = request.form['c']
+        d = request.form['d']
+        answer = request.form['answer']
+        tags = request.form['tags']
+
+        series = [question, a, b, c, d, answer, tags]
+        for i in range(7):
+            if series[i] != '':
+                df.loc[code][df.columns.values[i]] = series[i]
+        df.to_pickle(current_filepath)
+
+        return redirect(url_for('edit_modify', path=filepath))
+
+    return render_template('edit_modify.html', columns_tags=df.columns.values, index_size=df.index.size, df=df, filepath=filepath)
+
+
+@app.route('/edit/drop', methods=['GET', 'POST'])
+@login_required
+def edit_drop():
+    if not request.args.get('path'):
+        return redirect(url_for('index'))
+
+    filepath = request.args.get('path')
+    current_filepath = os.path.join('pkl', filepath)
+    df = pd.read_pickle(current_filepath)
+
+    if request.method == 'POST':
+        code = int(request.form['code'])
+
+        if code < 0 or code >= df.index.size:
+            flash('编号错误')
+            return redirect(url_for('edit_drop', path=filepath))
+
+        df.drop(code, inplace=True)
+        df.to_pickle(current_filepath)
+
+        return redirect(url_for('edit_drop', path=filepath))
+
+    return render_template('edit_drop.html', columns_tags=df.columns.values, index_size=df.index.size, df=df, filepath=filepath)
+
+
+@app.route('/edit/delete/all', methods=['GET', 'POST'])
+@login_required
+def edit_del_all():
+    pass
 
 
 @app.route('/admin')
+@login_required
 def admin():
-    return 'hello!'
+    return 'hello! But here is nothing!'

@@ -1,0 +1,18 @@
+{% extends 'edit.html' %}
+
+{% block status %}
+<button class="button" style="background-color: red;">当前状态：删除条目</button>
+{% endblock %}
+
+{% block section2 %}
+{{ super() }}
+<div class="scroll-div-right">
+    <div style="width: 80%; margin: 0 auto; padding-top: 0;">
+        <form method="post">
+            <label>编号（删除对应行）</label>
+            <input type="text" name="code" autocomplete="off">
+            <input type="submit" value="Update">
+        </form>
+    </div>
+</div>
+{% endblock %}

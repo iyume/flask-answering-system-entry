@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+a:link {
+    color: white;
+}
+
+a:visited {
+    color: white;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+label {
+  padding: 12px 12px 0 0;
+  display: inline-block;
+}
+
+input[type=submit] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+</style>
+{% endblock %}
+
+{% block section1 %}
+            <div class="scroll-div-left">
+                <div style="overflow-x: auto;">
+                    <table>
+                        <tr>
+                            <th>编号</th>
+                            {% for i in columns_tags %}
+                            <th>{{ i }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for i in range(index_size) %}
+                        <tr>
+                            <th>{{ i }}</th>
+                            {% for data in df.loc[i] %}
+                            <th>{{ data }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+{% endblock %}
+
+{% block section2 %}
+            <div style="margin-bottom: 20px;">
+                <form>
+                    <a href="{{ url_for('edit_add', path=filepath) }}" class="button">添加条目</a>
+                    <a href="{{ url_for('edit_insert', path=filepath) }}" class="button" style="background-color: #b49a44;">插入条目</a>
+                    <a href="{{ url_for('edit_modify', path=filepath) }}" class="button" style="background-color: blue;">修改条目</a>
+                    <a href="{{ url_for('edit_drop', path=filepath) }}" class="button" style="background-color: red;">删除条目</a>
+                    
+                    {% block status %}
+                    <button class="button" style="background-color: #000000;">当前状态：无</button>
+                    {% endblock %}
+
+                    <a href="{{ url_for('index') }}" class="button" style="float: right;">返回主页</a>
+                </form>
+            </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

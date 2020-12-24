@@ -1,4 +1,4 @@
-{% extends 'secret_base.html' %}
+{% extends 'base.html' %}
 
 {% block link %}
 {% endblock %}
@@ -27,12 +27,13 @@
                         <input type="hidden" name="a" value="{{ a }}" autocomplete="off">
                         <input type="hidden" name="b" value="{{ b }}" autocomplete="off">
                         <input type="hidden" name="c" value="{{ c }}" autocomplete="off">
-                        <button type="submit" name="submit" value="add">Add</button>
+                        <button type="submit" name="submit" value="add" class="button" style="padding: 6px 20px;">Add</button>
+                        <button type="submit" name="submit" value="del" class="button" style="padding: 6px 20px; background-color: red;">Delete</button>
                     </form>
                 </span>
                             {% for d in paths[a][b][c] %}
                                 {% set filepath = [a, b, c, d] | join('/') %}
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('secret_edit', path=filepath) }}">{{ d }}</a></p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('edit', path=filepath) }}">{{ d }}</a></p>
                             {% endfor %}
                         {% endfor %}
                     {% endfor %}
