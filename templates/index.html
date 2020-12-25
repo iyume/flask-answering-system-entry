@@ -33,7 +33,7 @@
                 </span>
                             {% for d in paths[a][b][c] %}
                                 {% set filepath = [a, b, c, d] | join('/') %}
-                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('edit', path=filepath) }}">{{ d }}</a></p>
+                <p style="margin: 6px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('edit', path=filepath) }}">{{ d }}</a></p>
                             {% endfor %}
                         {% endfor %}
                     {% endfor %}

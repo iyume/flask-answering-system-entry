@@ -279,6 +279,7 @@ def edit_drop():
             return redirect(url_for('edit_drop', path=filepath))
 
         df.drop(code, inplace=True)
+        df.reset_index(drop=True)
         df.to_pickle(current_filepath)
 
         return redirect(url_for('edit_drop', path=filepath))
